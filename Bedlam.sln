@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33712.159
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{53734E2A-BD30-4D0D-8EAF-2248D2A05B91}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Dockerfile = Dockerfile
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bedlam", "src\Bedlam.csproj", "{D22BADF6-3710-4A5F-9FB0-B55FF71C556A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D22BADF6-3710-4A5F-9FB0-B55FF71C556A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D22BADF6-3710-4A5F-9FB0-B55FF71C556A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D22BADF6-3710-4A5F-9FB0-B55FF71C556A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D22BADF6-3710-4A5F-9FB0-B55FF71C556A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C64AAAC-129E-400C-97ED-06B426124456}
+	EndGlobalSection
+EndGlobal
