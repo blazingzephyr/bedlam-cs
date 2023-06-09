@@ -16,7 +16,7 @@ internal class Program
         while (!token.IsCancellationRequested)
         {
             Console.WriteLine("Test");
-            await Task.Delay(1000);
+            await Task.Delay(1000, token);
         }
     }
 }
