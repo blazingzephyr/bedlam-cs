@@ -5,6 +5,11 @@ internal class Program
 {
     static void Main()
     {
-        Console.WriteLine("Hello, World!");
+        var variable = Environment.GetEnvironmentVariable("Test", EnvironmentVariableTarget.Process);
+        while (true)
+        {
+            Console.WriteLine(variable);
+            Thread.Sleep(5000);
+        }
     }
 }
