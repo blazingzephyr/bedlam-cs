@@ -5,11 +5,18 @@ internal class Program
 {
     static void Main()
     {
-        var variable = Environment.GetEnvironmentVariable("Test", EnvironmentVariableTarget.Process);
-        while (true)
+        CancellationTokenSource source = new CancellationTokenSource();
+        Parallel(source.Token);
+
+        source.CancelAfter(15000);
+    }
+
+    static async Task Parallel(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
         {
-            Console.WriteLine(variable);
-            Thread.Sleep(5000);
+            Console.WriteLine("Test");
+            await Task.Delay(1000);
         }
     }
 }
