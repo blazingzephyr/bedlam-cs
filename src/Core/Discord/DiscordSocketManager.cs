@@ -33,8 +33,9 @@ internal class DiscordSocketManager
         {
             if (message.Content == "Kill")
             {
-                OnKilled?.Invoke(this);
                 await Client.StopAsync();
+                await Client.LogoutAsync();
+                OnKilled?.Invoke(this);
             }
         };
     }

@@ -49,11 +49,6 @@ internal class App
         getVariable("DISCORD_BOT_OWNER_ID", out _botOwner);
         getVariable("DISCORD_LOG_CHANNEL_ID", out _log);
 
-        if (env["CONFIG"] is string c)
-        {
-            Console.WriteLine("IS STRING!!!");
-        }
-
         string configBody = env["CONFIG"] is string config ? config : File.ReadAllText("config.json");
         _config = JsonSerializer.Deserialize<Config>(configBody);
 
