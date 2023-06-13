@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,13 +26,22 @@ internal class App
 
     public App()
     {
-        var env = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process)
-              as Dictionary<string, string> ??
+        var env =
+            Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process)
+              as Hashtable ??
           throw new NullReferenceException(
               "This process does not have any environment variables.");
 
-        var getVariable = (string name, out string variable) => variable =
-            env.ContainsKey(name) ? env[name] : throw new Exception(name);
+        void getVariable(string name, out string value)
+        {
+            if (env[name] is string variable)
+            {
+                value = variable;
+                return;
+            }
+
+            throw new Exception(name);
+        }
 
         getVariable("NOTION_INTEGRATION_TOKEN", out _integrationToken);
         getVariable("DISCORD_CLIENT_ID", out _client);
@@ -39,9 +49,8 @@ internal class App
         getVariable("DISCORD_BOT_OWNER_ID", out _botOwner);
         getVariable("DISCORD_LOG_CHANNEL_ID", out _log);
 
-        _config = JsonSerializer.Deserialize<Config>(
-            env.ContainsKey("CONFIG") ? env["CONFIG"]
-                                      : File.ReadAllText("config.json"));
+        string configBody = env["CONFIG"] is string config ? config : File.ReadAllText("config.json");
+        _config = JsonSerializer.Deserialize<Config>(configBody);
 
         _source = new CancellationTokenSource();
 
