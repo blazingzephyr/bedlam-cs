@@ -1,12 +1,7 @@
-﻿using System;
+﻿
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using static Bedlam.App;
+using static Bedlam.NotionManager;
 using static DiscordSocketManager;
 
 namespace Bedlam;
@@ -14,15 +9,7 @@ namespace Bedlam;
 internal class App
 {
     public record struct Config
-    (DiscordSocketManagerOptions Discord);
-
-    readonly CancellationTokenSource _source;
-    readonly Config _config;
-    readonly string _integrationToken;
-    readonly string _client;
-    readonly string _botToken;
-    readonly string _botOwner;
-    readonly string _log;
+    (DiscordSocketManagerOptions Discord, NotionManagerOptions Notion);
 
     public App()
     {
@@ -43,27 +30,27 @@ internal class App
             throw new Exception(name);
         }
 
-        getVariable("NOTION_INTEGRATION_TOKEN", out _integrationToken);
-        getVariable("DISCORD_CLIENT_ID", out _client);
-        getVariable("DISCORD_BOT_TOKEN", out _botToken);
-        getVariable("DISCORD_BOT_OWNER_ID", out _botOwner);
-        getVariable("DISCORD_LOG_CHANNEL_ID", out _log);
+        getVariable("NOTION_INTEGRATION_TOKEN", out string integrationToken);
+        getVariable("DISCORD_CLIENT_ID", out string client);
+        getVariable("DISCORD_BOT_TOKEN", out string botToken);
+        getVariable("DISCORD_BOT_OWNER_ID", out string botOwner);
+        getVariable("DISCORD_LOG_CHANNEL_ID", out string log);
 
-        string configBody = env["CONFIG"] is string config ? config : File.ReadAllText("config.json");
-        _config = JsonSerializer.Deserialize<Config>(configBody);
+        string configBody = env["CONFIG"] is string configEnv ? configEnv : File.ReadAllText("config.json");
+        Config config = JsonSerializer.Deserialize<Config>(configBody);
+        CancellationTokenSource source = new CancellationTokenSource();
 
-        _source = new CancellationTokenSource();
+        DiscordSocketManager discord = new(botToken, UInt64.Parse(botOwner), config.Discord);
+        discord.OnKilled += manager => source.Cancel();
 
-        StartDiscord();
+        NotionManager notion = new(botToken, config.Notion);
+        notion.OnReady += manager => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync("I'M READY SORRY");
+        notion.OnUpdated += (manager, a, b) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(a.Count.ToString());
+        notion.OnApiError += (manager, error) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(error.Message);
 
-        _source.Token.WaitHandle.WaitOne();
-    }
+        discord.Start();
+        notion.Watch(source.Token);
 
-    public async Task StartDiscord()
-    {
-        DiscordSocketManager discord = new (_botToken, _config.Discord);
-        discord.OnKilled += manager => _source.Cancel();
-
-        await discord.Start();
+        source.Token.WaitHandle.WaitOne();
     }
 }

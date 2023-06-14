@@ -13,13 +13,15 @@ internal class DiscordSocketManager
     public DiscordSocketClient Client { get; }
     readonly string _token;
     readonly TokenType _tokenType;
+    readonly ulong _botOwner;
 
-    public DiscordSocketManager(string token,
+    public DiscordSocketManager(string token, ulong botOwner,
                                 DiscordSocketManagerOptions options)
     {
         Client = new DiscordSocketClient(options.Config);
         _token = token;
         _tokenType = options.TokenType;
+        _botOwner = botOwner;
 
         Client.LoggedIn += async () =>
         {
@@ -31,7 +33,7 @@ internal class DiscordSocketManager
 
         Client.MessageReceived += async message =>
         {
-            if (message.Content == "Kill")
+            if (message.Content == "Kill" && message.Author.Id == _botOwner)
             {
                 await Client.StopAsync();
                 await Client.LogoutAsync();
