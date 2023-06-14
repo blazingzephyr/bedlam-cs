@@ -38,19 +38,25 @@ internal class NotionManager
 
     public async Task Watch(CancellationToken token)
     {
+        Console.WriteLine("#1");
         Dictionary<string, DateTime>? current = null;
 
         while (!token.IsCancellationRequested)
         {
+            Console.WriteLine("#2");
             var response = await Search(token);
-            if (response.IsSuccessful)
+            Console.WriteLine("#3");
+            if (!response.IsSuccessful)
             {
                 OnApiError?.Invoke(this, response.Exception!);
+                Console.WriteLine("Waiting to be canceled...");
             }
             else if (!token.IsCancellationRequested)
             {
+                Console.WriteLine("Should be successful!");
                 if (current == null)
                 {
+                    Console.WriteLine("Initial loading!");
                     current = new Dictionary<string, DateTime>();
                     for (int i = 0; i < response.Results!.Count; i++)
                     {
@@ -90,6 +96,7 @@ internal class NotionManager
 
                     if (updated.Count > 0)
                     {
+                        Console.WriteLine("Changes have occured!");
                         OnUpdated?.Invoke(this, updated, response.Results);
                     }
                 }
@@ -117,6 +124,7 @@ internal class NotionManager
                 hasMore = false;
             });
 
+            Console.WriteLine("#4");
             List<IObject> results = new();
             while (hasMore)
             {
@@ -124,7 +132,9 @@ internal class NotionManager
                 hasMore = list.HasMore;
                 param.StartCursor = list.NextCursor;
                 results.AddRange(list.Results);
+                Console.WriteLine("#5");
             }
+            Console.WriteLine("#6");
 
             return new SearchResponse
             (true, Results: token.IsCancellationRequested ? results : null);

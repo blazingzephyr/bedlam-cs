@@ -46,5 +46,6 @@ internal class DiscordSocketManager
     {
         await Client.LoginAsync(_tokenType, _token);
         await Client.StartAsync();
+        Console.WriteLine("Bot started or smth!");
     }
 }

@@ -51,6 +51,7 @@ internal class App
         discord.Start();
         notion.Watch(source.Token);
 
+        Console.WriteLine("Waiting to be canceled...");
         source.Token.WaitHandle.WaitOne();
     }
 }
