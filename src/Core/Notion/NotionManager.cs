@@ -43,7 +43,7 @@ internal class NotionManager
         while (!token.IsCancellationRequested)
         {
             var response = await Search(token);
-            if (response.IsSuccessful)
+            if (!response.IsSuccessful)
             {
                 OnApiError?.Invoke(this, response.Exception!);
             }
