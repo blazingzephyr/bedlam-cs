@@ -5,8 +5,15 @@ using System.Threading;
 
 internal class DiscordSocketManager
 {
+    public record struct DiscordMessageCreationOptions
+    (string Text = null, bool IsTTS = false, Embed Embed = null, RequestOptions Options = null,
+    AllowedMentions AllowedMentions = null, MessageReference MessageReference = null,
+    MessageComponent Components = null, ISticker[] Stickers = null, Embed[] Embeds = null,
+    MessageFlags Flags = MessageFlags.None);
+    
     public record struct DiscordSocketManagerOptions
-    (DiscordSocketConfig Config, TokenType TokenType, bool SendStartupMessage, ulong? StartupChannel);
+    (DiscordSocketConfig Config, TokenType TokenType, bool SendStartupMessage,
+    ulong? StartupChannel, DiscordMessageCreationOptions StartupMessage);
 
     public delegate void DiscordSocketEventHandler(DiscordSocketManager source);
     public event DiscordSocketEventHandler? OnKilled;
@@ -39,7 +46,11 @@ internal class DiscordSocketManager
                 StartupChannel = options.StartupChannel == null ? Log :
                 await Client.GetChannelAsync(options.StartupChannel.Value, requestOptions) as ITextChannel;
 
-                StartupChannel?.SendMessageAsync("TEST");
+                var msg = options.StartupMessage;
+                StartupChannel?.SendMessageAsync(
+                    msg.Text, msg.IsTTS, msg.Embed, msg.Options,
+                    msg.AllowedMentions, msg.MessageReference, msg.Components,
+                    msg.Stickers, msg.Embeds, msg.Flags);
             }
         };
 

@@ -1,6 +1,6 @@
 ﻿
+using Newtonsoft.Json;
 using System.Collections;
-using System.Text.Json;
 using static Bedlam.NotionManager;
 using static DiscordSocketManager;
 
@@ -22,15 +22,23 @@ internal class App
     {
         LoadEnvironmentVariables();
 
-        Config config = JsonSerializer.Deserialize<Config>(_configBody!);
+        Config config = JsonConvert.DeserializeObject<Config>(_configBody!);
         CancellationTokenSource source = new ();
 
         DiscordSocketManager discord = new(_botToken!, UInt64.Parse(_botOwner!), UInt64.Parse(_log!), config.Discord);
         discord.OnKilled += manager => source.Cancel();
 
         NotionManager notion = new(_integrationToken!, config.Notion);
-        notion.OnReady += manager => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync("I'M READY SORRY");
-        notion.OnUpdated += (manager, a, b) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(a.Count.ToString());
+        notion.OnReady += manager =>
+        {
+            discord.Client.Guilds.First().TextChannels.First().SendMessageAsync("I'M READY SORRY");
+        };
+
+        notion.OnUpdated += (manager, a, b) =>
+        {
+            discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(a.Count.ToString());
+        };
+
         notion.OnApiError += async (manager, error) =>
         {
             var channel = discord.Client.Guilds.First().TextChannels.First();
