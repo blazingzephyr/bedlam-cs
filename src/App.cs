@@ -43,7 +43,7 @@ internal class App
         DiscordSocketManager discord = new(botToken, UInt64.Parse(botOwner), config.Discord);
         discord.OnKilled += manager => source.Cancel();
 
-        NotionManager notion = new(botToken, config.Notion);
+        NotionManager notion = new(integrationToken, config.Notion);
         notion.OnReady += manager => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync("I'M READY SORRY");
         notion.OnUpdated += (manager, a, b) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(a.Count.ToString());
         notion.OnApiError += (manager, error) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(error.Message);

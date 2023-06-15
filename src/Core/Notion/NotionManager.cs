@@ -1,4 +1,3 @@
-﻿
 using Discord;
 using Notion.Client;
 
@@ -45,7 +44,7 @@ internal class NotionManager
         {
             Console.WriteLine("#2");
             var response = await Search(token);
-            Console.WriteLine("#3");
+          
             if (!response.IsSuccessful)
             {
                 OnApiError?.Invoke(this, response.Exception!);
@@ -113,7 +112,8 @@ internal class NotionManager
             bool hasMore = true;
             var param = new SearchParameters
             {
-                Sort = {
+                Sort = new SearchSort
+                {
                     Direction = SearchDirection.Descending,
                     Timestamp = "last_edited_time"
                 }
@@ -137,7 +137,7 @@ internal class NotionManager
             Console.WriteLine("#6");
 
             return new SearchResponse
-            (true, Results: token.IsCancellationRequested ? results : null);
+            (true, Results: token.IsCancellationRequested ? null : results);
         }
         catch (NotionApiException exception)
         {
