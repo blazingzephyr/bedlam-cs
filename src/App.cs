@@ -46,7 +46,12 @@ internal class App
         NotionManager notion = new(integrationToken, config.Notion);
         notion.OnReady += manager => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync("I'M READY SORRY");
         notion.OnUpdated += (manager, a, b) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(a.Count.ToString());
-        notion.OnApiError += (manager, error) => discord.Client.Guilds.First().TextChannels.First().SendMessageAsync(error.Message);
+        notion.OnApiError += async (manager, error) =>
+        {
+            var channel = discord.Client.Guilds.First().TextChannels.First();
+            await channel.SendMessageAsync("An exception has occured or some bs. Have a message lmao bye.");
+            await channel.SendMessageAsync(error.Message);
+        };
 
         discord.Start();
         notion.Watch(source.Token);
