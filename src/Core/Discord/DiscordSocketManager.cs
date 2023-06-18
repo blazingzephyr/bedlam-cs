@@ -3,17 +3,14 @@ using Discord.WebSocket;
 using Discord;
 using System.Threading;
 
+namespace Bedlam;
+
 internal class DiscordSocketManager
 {
-    public record struct DiscordMessageCreationOptions
-    (string Text = null, bool IsTTS = false, Embed Embed = null, RequestOptions Options = null,
-    AllowedMentions AllowedMentions = null, MessageReference MessageReference = null,
-    MessageComponent Components = null, ISticker[] Stickers = null, Embed[] Embeds = null,
-    MessageFlags Flags = MessageFlags.None);
-    
     public record struct DiscordSocketManagerOptions
     (DiscordSocketConfig Config, TokenType TokenType, bool SendStartupMessage,
-    ulong? StartupChannel, DiscordMessageCreationOptions StartupMessage);
+    ulong? StartupChannel, MessageCreationOptions? StartupMessage, MessageCreationOptions? KillMessage,
+    MessageCreationOptions? KillFail);
 
     public delegate void DiscordSocketEventHandler(DiscordSocketManager source);
     public event DiscordSocketEventHandler? OnKilled;
@@ -46,21 +43,26 @@ internal class DiscordSocketManager
                 StartupChannel = options.StartupChannel == null ? Log :
                 await Client.GetChannelAsync(options.StartupChannel.Value, requestOptions) as ITextChannel;
 
-                var msg = options.StartupMessage;
-                StartupChannel?.SendMessageAsync(
-                    msg.Text, msg.IsTTS, msg.Embed, msg.Options,
-                    msg.AllowedMentions, msg.MessageReference, msg.Components,
-                    msg.Stickers, msg.Embeds, msg.Flags);
+                MessageCreationOptions? startup = options.StartupMessage;
+                await StartupChannel.TrySendAsync(startup);
             }
         };
 
-        Client.MessageReceived += async message =>
+        Client.InteractionCreated += async interaction =>
         {
-            if (message.Content == "Kill" && message.Author.Id == _botOwner)
+            if (interaction is IApplicationCommand command && command.Name == "kill")
             {
-                await Client.StopAsync();
-                await Client.LogoutAsync();
-                OnKilled?.Invoke(this);
+                if (interaction.User.Id == _botOwner)
+                {
+                    await interaction.Channel.TrySendAsync(options.KillMessage);
+                    await Client.StopAsync();
+                    await Client.LogoutAsync();
+                    OnKilled?.Invoke(this);
+                }
+                else
+                {
+                    await interaction.Channel.TrySendAsync(options.KillFail);
+                }
             }
         };
     }

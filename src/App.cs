@@ -1,8 +1,8 @@
 ﻿
 using Newtonsoft.Json;
 using System.Collections;
+using static Bedlam.DiscordSocketManager;
 using static Bedlam.NotionManager;
-using static DiscordSocketManager;
 
 namespace Bedlam;
 
@@ -49,7 +49,6 @@ internal class App
         discord.Start(source.Token);
         notion.Watch(source.Token);
 
-        Console.WriteLine("Waiting to be canceled...");
         source.Token.WaitHandle.WaitOne();
     }
 
